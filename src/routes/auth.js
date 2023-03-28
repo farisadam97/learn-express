@@ -1,8 +1,20 @@
 const { Router } = require("express");
 const passport = require("passport");
+const logEvents = require("../utils/logEvents");
+const EventEmitter = require("events");
 const router = Router();
 const User = require("../database/schemas/User");
 const { hashPassword, comparePassword } = require("../utils/helpers");
+
+class MyEmitter extends EventEmitter {}
+
+// init events object
+const myEmitter = new MyEmitter();
+
+// add listener for log event
+myEmitter.on("log", (msg) => {
+  logEvents(msg);
+});
 
 // router.post("/login", async (req, res) => {
 //   const { email, password } = req.body;
@@ -36,6 +48,7 @@ router.post("/register", async (req, res) => {
   } else {
     const password = hashPassword(req.body.password);
     const newUser = await User.create({ password, email });
+    myEmitter.emit("log", `User ${email} has been created`);
     res.status(201).send({ msg: "User created!" });
   }
 });

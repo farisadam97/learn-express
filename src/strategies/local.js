@@ -35,7 +35,9 @@ passport.use(
         }
 
         const userDB = await User.findOne({ email });
-        if (!userDB) throw new Error("User not found!");
+        if (!userDB) {
+          done("User not found!", null);
+        }
 
         const isValidPass = comparePassword(password, userDB.password);
 
@@ -45,7 +47,7 @@ passport.use(
           done(null, null);
         }
       } catch (error) {
-        done(err, null);
+        done(error, null);
       }
     }
   )
